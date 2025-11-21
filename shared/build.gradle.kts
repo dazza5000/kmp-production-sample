@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 plugins {
     alias(libs.plugins.android.library)
@@ -8,6 +9,8 @@ plugins {
 }
 
 kotlin {
+    val xcf = XCFramework("RssReader")
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -23,6 +26,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "RssReader"
             isStatic = true
+            xcf.add(this)
         }
     }
 
