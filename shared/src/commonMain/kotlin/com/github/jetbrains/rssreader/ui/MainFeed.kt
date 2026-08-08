@@ -12,27 +12,24 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.github.jetbrains.rssreader.app.FeedAction
-import com.github.jetbrains.rssreader.app.FeedStore
 import com.github.jetbrains.rssreader.domain.Item
 import com.github.jetbrains.rssreader.domain.RssFeed
+import com.github.jetbrains.rssreader.presentation.FeedUiState
 import kotlinx.coroutines.launch
 
 @Composable
 fun MainFeed(
-    store: FeedStore,
+    uiState: FeedUiState,
+    onSelectFeed: (RssFeed?) -> Unit,
     onPostClick: (Item) -> Unit,
     onEditClick: () -> Unit,
 ) {
-    val state = store.observeState().collectAsState()
-    val posts = remember(state.value.feeds, state.value.selectedFeed) {
-        (state.value.selectedFeed?.channel?.item ?: state.value.feeds.flatMap { it.channel?.item ?: emptyList() })
-            .sortedByDescending { it.pubDate }
+    val posts = remember(uiState.feeds, uiState.selectedFeed) {
+        uiState.mainFeedPosts
     }
     Column {
         val coroutineScope = rememberCoroutineScope()
@@ -43,11 +40,11 @@ fun MainFeed(
             listState = listState
         ) { post -> onPostClick(post) }
         MainFeedBottomBar(
-            feeds = state.value.feeds,
-            selectedFeed = state.value.selectedFeed,
+            feeds = uiState.feeds,
+            selectedFeed = uiState.selectedFeed,
             onFeedClick = { feed ->
                 coroutineScope.launch { listState.scrollToItem(0) }
-                store.dispatch(FeedAction.SelectFeed(feed))
+                onSelectFeed(feed)
             },
             onEditClick = onEditClick
         )

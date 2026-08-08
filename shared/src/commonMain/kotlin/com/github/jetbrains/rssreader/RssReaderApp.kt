@@ -23,8 +23,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.github.jetbrains.rssreader.app.FeedSideEffect
-import com.github.jetbrains.rssreader.app.FeedStore
+import com.github.jetbrains.rssreader.presentation.FeedUiEvent
+import com.github.jetbrains.rssreader.presentation.FeedViewModel
 import com.github.jetbrains.rssreader.ui.AppTheme
 import com.github.jetbrains.rssreader.ui.FeedListScreen
 import com.github.jetbrains.rssreader.ui.MainScreen
@@ -84,15 +84,14 @@ fun RssReaderApp(navController: NavHostController = rememberNavController()) {
                 }
             }
 
-            val store: FeedStore = koinInject<FeedStore>()
-            val error = store.observeSideEffect()
-                .filterIsInstance<FeedSideEffect.Error>()
-                .collectAsState(null)
-            LaunchedEffect(error.value) {
-                error.value?.let {
-                    snackbarHostState.showSnackbar(
-                        it.error.message.toString()
-                    )
+            val viewModel: FeedViewModel = koinInject()
+            LaunchedEffect(Unit) {
+                viewModel.uiEvent.collect { event ->
+                    when (event) {
+                        is FeedUiEvent.ShowError -> {
+                            snackbarHostState.showSnackbar(event.message)
+                        }
+                    }
                 }
             }
         }

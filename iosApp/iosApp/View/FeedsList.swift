@@ -18,13 +18,13 @@ struct FeedsList: ConnectedView {
         let onRemove: (String) -> ()
     }
     
-    func map(state: FeedState, dispatch: @escaping DispatchFunction) -> Props {
+    func map(state: FeedUiState, store: ObservableFeedStore) -> Props {
         return Props(defaultFeeds: state.feeds.filter { $0.isDefault },
                      userFeeds: state.feeds.filter { !$0.isDefault },
                      onAdd: { url in
-                        dispatch(FeedAction.Add(url: url))
+                        store.addFeed(url: url)
                      }, onRemove: { url in
-                        dispatch(FeedAction.Delete(url: url))
+                        store.deleteFeed(url: url)
                      })
     }
     
@@ -54,4 +54,3 @@ struct FeedsList: ConnectedView {
 }
 
 extension RssFeed: Identifiable { }
-
