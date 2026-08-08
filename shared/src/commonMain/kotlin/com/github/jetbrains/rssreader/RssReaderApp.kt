@@ -31,7 +31,7 @@ import com.github.jetbrains.rssreader.ui.MainScreen
 import com.github.jetbrains.rssreader.ui.RssFeedAppBar
 import com.github.jetbrains.rssreader.ui.Screen
 import kotlinx.coroutines.flow.filterIsInstance
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +84,7 @@ fun RssReaderApp(navController: NavHostController = rememberNavController()) {
                 }
             }
 
-            val viewModel: FeedViewModel = koinInject()
+            val viewModel: FeedViewModel = koinViewModel()
             LaunchedEffect(Unit) {
                 viewModel.uiEvent.collect { event ->
                     when (event) {
