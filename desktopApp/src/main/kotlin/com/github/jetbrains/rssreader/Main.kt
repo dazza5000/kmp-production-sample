@@ -2,29 +2,29 @@ package com.github.jetbrains.rssreader
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import com.github.jetbrains.rssreader.presentation.FeedViewModel
+import androidx.room.Room
 import com.github.jetbrains.rssreader.core.HttpClient
 import com.github.jetbrains.rssreader.core.RssReader
 import com.github.jetbrains.rssreader.datasource.network.FeedLoader
 import com.github.jetbrains.rssreader.datasource.storage.FeedStorage
-import com.russhwolf.settings.PropertiesSettings
-import kotlinx.serialization.json.Json
+import com.github.jetbrains.rssreader.datasource.storage.RssDatabase
+import com.github.jetbrains.rssreader.datasource.storage.getRoomDatabase
+import com.github.jetbrains.rssreader.presentation.FeedViewModel
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import java.util.*
+import java.io.File
 
 private val appModule = module {
-    single { RssReader(get(), get(), Settings(setOf("https://blog.jetbrains.com/kotlin/feed/"))) }
-    single<FeedStorage> {
-        FeedStorage(
-            PropertiesSettings(Properties()),
-            Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-                encodeDefaults = false
-            }
+    single {
+        val dbFile = File(System.getProperty("user.home"), ".rssreader/rss_reader.db")
+        dbFile.parentFile?.mkdirs()
+        val builder = Room.databaseBuilder<RssDatabase>(
+            name = dbFile.absolutePath
         )
+        getRoomDatabase(builder)
     }
+    single { FeedStorage(get<RssDatabase>().rssDao()) }
+    single { RssReader(get(), get(), Settings(setOf("https://blog.jetbrains.com/kotlin/feed/"))) }
     factory { FeedViewModel(get()) }
     single { FeedLoader(get()) }
     single { HttpClient(false) }
