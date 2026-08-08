@@ -14,19 +14,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.github.jetbrains.rssreader.app.FeedAction
-import com.github.jetbrains.rssreader.app.FeedStore
 import com.github.jetbrains.rssreader.domain.RssFeed
+import com.github.jetbrains.rssreader.presentation.FeedUiState
 
 @Composable
-fun FeedList(store: FeedStore) {
+fun FeedList(
+    uiState: FeedUiState,
+    onAddFeed: (String) -> Unit,
+    onDeleteFeed: (String) -> Unit
+) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        val state = store.observeState().collectAsState()
         val showAddDialog = remember { mutableStateOf(false) }
         val feedForDelete = remember<MutableState<RssFeed?>> { mutableStateOf(null) }
-        FeedItemList(feeds = state.value.feeds) {
+        FeedItemList(feeds = uiState.feeds) {
             feedForDelete.value = it
         }
         FloatingActionButton(
@@ -45,8 +47,8 @@ fun FeedList(store: FeedStore) {
         }
         if (showAddDialog.value) {
             AddFeedDialog(
-                onAdd = {
-                    store.dispatch(FeedAction.Add(it))
+                onAdd = { url ->
+                    onAddFeed(url)
                     showAddDialog.value = false
                 },
                 onDismiss = {
@@ -58,7 +60,7 @@ fun FeedList(store: FeedStore) {
             DeleteFeedDialog(
                 feed = feed,
                 onDelete = {
-                    store.dispatch(FeedAction.Delete(feed.sourceUrl))
+                    onDeleteFeed(feed.sourceUrl)
                     feedForDelete.value = null
                 },
                 onDismiss = {

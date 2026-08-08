@@ -1,6 +1,6 @@
 package com.github.jetbrains.rssreader
 
-import com.github.jetbrains.rssreader.app.FeedStore
+import com.github.jetbrains.rssreader.presentation.FeedViewModel
 import com.github.jetbrains.rssreader.core.HttpClient
 import com.github.jetbrains.rssreader.core.RssReader
 import com.github.jetbrains.rssreader.datasource.network.FeedLoader
@@ -25,14 +25,14 @@ private val appModule = module {
             }
         )
     }
-    single { FeedStore(get()) }
+    factory { FeedViewModel(get()) }
     single { FeedLoader(get()) }
     single { HttpClient(false) }
 }
 
 class KoinHelper : KoinComponent {
     val rssReader by inject<RssReader>()
-    val feedStore by inject<FeedStore>()
+    val feedViewModel by inject<FeedViewModel>()
 }
 
 fun initKoin() {

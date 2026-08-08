@@ -2,7 +2,7 @@ package com.github.jetbrains.rssreader
 
 import android.app.Application
 import android.content.Context
-import com.github.jetbrains.rssreader.app.FeedStore
+import com.github.jetbrains.rssreader.presentation.FeedViewModel
 import com.github.jetbrains.rssreader.core.buildRssReader
 import com.github.jetbrains.rssreader.sync.RefreshWorker
 import org.koin.android.ext.koin.androidContext
@@ -21,7 +21,7 @@ class App : Application() {
 
     private val appModule = module {
         single { buildRssReader(get<Context>(), BuildConfig.DEBUG) }
-        single { FeedStore(get()) }
+        factory { FeedViewModel(get()) }
     }
 
     private fun initKoin() {
