@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -74,6 +75,9 @@ kotlin {
             //XML
             implementation(libs.xml.serialization)
             implementation(libs.xml.serialization.core)
+            //Room
+            api(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
@@ -89,6 +93,12 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
     }
+}
+
+
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 compose.resources {

@@ -1,45 +1,32 @@
 package com.github.jetbrains.rssreader.datasource.storage
 
+import com.github.jetbrains.rssreader.datasource.storage.entity.toDomain
+import com.github.jetbrains.rssreader.datasource.storage.entity.toEntities
 import com.github.jetbrains.rssreader.domain.RssFeed
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.set
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class FeedStorage(
-    private val settings: Settings,
-    private val json: Json
+    private val rssDao: RssDao
 ) {
-    private companion object {
-        private const val KEY_FEED_CACHE = "key_feed_cache"
+    suspend fun getFeed(url: String): RssFeed? {
+        return rssDao.getAllFeeds().firstOrNull { it.feed.url == url }?.toDomain()
     }
 
-    private var diskCache: Map<String, RssFeed>
-        get() {
-            return settings.getStringOrNull(KEY_FEED_CACHE)?.let { str ->
-                json.decodeFromString(ListSerializer(RssFeed.serializer()), str)
-                    .associate { it.sourceUrl to it }
-            } ?: mutableMapOf()
-        }
-        set(value) {
-            val list = value.map { it.value }
-            settings[KEY_FEED_CACHE] =
-                json.encodeToString(ListSerializer(RssFeed.serializer()), list)
-        }
-
-    private val memCache: MutableMap<String, RssFeed> by lazy { diskCache.toMutableMap() }
-
-    suspend fun getFeed(url: String): RssFeed? = memCache[url]
-
     suspend fun saveFeed(feed: RssFeed) {
-        memCache[feed.sourceUrl] = feed
-        diskCache = memCache
+        val (feedEntity, itemEntities) = feed.toEntities()
+        rssDao.insertFeedWithItems(feedEntity, itemEntities)
     }
 
     suspend fun deleteFeed(url: String) {
-        memCache.remove(url)
-        diskCache = memCache
+        rssDao.deleteFeed(url)
     }
 
-    suspend fun getAllFeeds(): List<RssFeed> = memCache.values.toList()
+    suspend fun getAllFeeds(): List<RssFeed> {
+        return rssDao.getAllFeeds().map { it.toDomain() }
+    }
+
+    fun observeAllFeeds(): Flow<List<RssFeed>> {
+        return rssDao.observeAllFeeds().map { list -> list.map { it.toDomain() } }
+    }
 }

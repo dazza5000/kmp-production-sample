@@ -7,25 +7,20 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_11
-    }
-    dependencies {
-        implementation(projects.shared)
-        implementation(libs.activity.compose)
-        implementation(libs.accompanist.swiperefresh)
-        implementation(libs.kotlinx.coroutines.core)
-        implementation(libs.kotlinx.coroutines.android)
-        implementation(libs.koin.core)
-        implementation(libs.koin.android)
-        implementation(libs.work.runtime)
-        implementation(libs.androidx.core.splashscreen)
-        implementation(libs.napier)
-        implementation(libs.multiplatform.settings)
-        implementation(libs.kotlinx.serialization.json)
-        implementation(libs.ktor.core)
-    }
+dependencies {
+    implementation(projects.shared)
+    implementation(libs.activity.compose)
+    implementation(libs.accompanist.swiperefresh)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.work.runtime)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.napier)
+    implementation(libs.multiplatform.settings)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.ktor.core)
 }
 
 android {
