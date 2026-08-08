@@ -23,7 +23,7 @@ import com.github.jetbrains.rssreader.feed_list
 import com.github.jetbrains.rssreader.presentation.FeedViewModel
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 enum class Screen(val title: StringResource) {
     Main(Res.string.app_name), FeedList(Res.string.feed_list);
@@ -61,7 +61,7 @@ fun RssFeedAppBar(
 fun MainScreen(
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: FeedViewModel = koinInject()
+    viewModel: FeedViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
@@ -88,7 +88,7 @@ fun MainScreen(
 
 @Composable
 fun FeedListScreen(
-    viewModel: FeedViewModel = koinInject()
+    viewModel: FeedViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     FeedList(
