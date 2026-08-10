@@ -2,7 +2,7 @@ package com.github.jetbrains.rssreader
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import androidx.room.Room
+import androidx.room3.Room
 import com.github.jetbrains.rssreader.core.HttpClient
 import com.github.jetbrains.rssreader.core.RssReader
 import com.github.jetbrains.rssreader.datasource.network.FeedLoader
