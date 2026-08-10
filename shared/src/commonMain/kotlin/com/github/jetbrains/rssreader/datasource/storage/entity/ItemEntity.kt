@@ -1,9 +1,11 @@
 package com.github.jetbrains.rssreader.datasource.storage.entity
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room3.Entity
+import androidx.room3.ForeignKey
+import androidx.room3.Index
+import androidx.room3.PrimaryKey
+import com.github.jetbrains.rssreader.domain.Item
+import com.github.jetbrains.rssreader.domain.MediaContent
 
 @Entity(
     tableName = "items",
@@ -15,15 +17,26 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["feedUrl"])]
+    indices = [Index("feedUrl")]
 )
 data class ItemEntity(
-    @PrimaryKey val guid: String,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val feedUrl: String,
+    val guid: String,
     val title: String?,
-    val pubDate: String?,
     val link: String?,
+    val pubDate: String?,
     val description: String?,
     val contentEncoded: String?,
-    val mediaUrl: String?
-)
+    val mediaContentUrl: String?
+) {
+    fun toDomain() = Item(
+        title = title,
+        pubDate = pubDate,
+        link = link,
+        guid = guid,
+        description = description,
+        contentEncoded = contentEncoded,
+        mediaContent = mediaContentUrl?.let { MediaContent(url = it) }
+    )
+}

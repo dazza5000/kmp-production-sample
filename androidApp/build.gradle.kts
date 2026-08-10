@@ -10,7 +10,6 @@ plugins {
 dependencies {
     implementation(projects.shared)
     implementation(libs.activity.compose)
-    implementation(libs.accompanist.swiperefresh)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.koin.core)

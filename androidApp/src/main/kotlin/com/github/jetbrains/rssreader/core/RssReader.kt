@@ -1,7 +1,7 @@
 package com.github.jetbrains.rssreader.core
 
 import android.content.Context
-import androidx.room.Room
+import androidx.room3.Room
 import com.github.jetbrains.rssreader.datasource.network.FeedLoader
 import com.github.jetbrains.rssreader.datasource.storage.FeedStorage
 import com.github.jetbrains.rssreader.datasource.storage.RssDatabase

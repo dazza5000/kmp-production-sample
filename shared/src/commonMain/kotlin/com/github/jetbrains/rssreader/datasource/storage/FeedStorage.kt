@@ -1,7 +1,6 @@
 package com.github.jetbrains.rssreader.datasource.storage
 
-import com.github.jetbrains.rssreader.datasource.storage.entity.toDomain
-import com.github.jetbrains.rssreader.datasource.storage.entity.toEntities
+import com.github.jetbrains.rssreader.datasource.storage.entity.FeedWithItems
 import com.github.jetbrains.rssreader.domain.RssFeed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -14,7 +13,7 @@ class FeedStorage(
     }
 
     suspend fun saveFeed(feed: RssFeed) {
-        val (feedEntity, itemEntities) = feed.toEntities()
+        val (feedEntity, itemEntities) = FeedWithItems.fromDomain(feed)
         rssDao.insertFeedWithItems(feedEntity, itemEntities)
     }
 
