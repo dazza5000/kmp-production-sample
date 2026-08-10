@@ -17,28 +17,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.jetbrains.rssreader.Res
-import com.github.jetbrains.rssreader.app_name
 import com.github.jetbrains.rssreader.back_button
-import com.github.jetbrains.rssreader.feed_list
 import com.github.jetbrains.rssreader.presentation.FeedViewModel
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-enum class Screen(val title: StringResource) {
-    Main(Res.string.app_name), FeedList(Res.string.feed_list);
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RssFeedAppBar(
-    currentScreen: Screen,
+    title: StringResource,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
-        title = { Text(stringResource(currentScreen.title)) },
+        title = { Text(stringResource(title)) },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
