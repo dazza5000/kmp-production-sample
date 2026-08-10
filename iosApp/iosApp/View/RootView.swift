@@ -7,7 +7,7 @@ struct RootView: View {
     
     var body: some View {
         ZStack {
-            NavigationView {
+            NavigationStack {
                 MainFeedView()
             }.zIndex(0)
             if let errorMessage = self.errorMessage {
@@ -22,15 +22,6 @@ struct RootView: View {
                 .padding(.bottom, 10)
                 .zIndex(1)
                 .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity) )
-            }
-        }
-        .navigationViewStyle(StackNavigationViewStyle())
-        .onReceive(store.$sideEffect) { value in
-            if let errorMessage = (value as? FeedSideEffect.Error)?.error.message {
-                withAnimation { self.errorMessage = errorMessage }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    withAnimation { self.errorMessage = nil }
-                }
             }
         }
     }
