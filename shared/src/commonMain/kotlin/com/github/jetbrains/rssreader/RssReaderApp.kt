@@ -13,11 +13,11 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,28 +28,26 @@ import com.github.jetbrains.rssreader.presentation.FeedViewModel
 import com.github.jetbrains.rssreader.ui.AppTheme
 import com.github.jetbrains.rssreader.ui.FeedListScreen
 import com.github.jetbrains.rssreader.ui.MainScreen
+import com.github.jetbrains.rssreader.ui.Route
 import com.github.jetbrains.rssreader.ui.RssFeedAppBar
-import com.github.jetbrains.rssreader.ui.Screen
-import kotlinx.coroutines.flow.filterIsInstance
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RssReaderApp(navController: NavHostController = rememberNavController()) {
     AppTheme {
-        // Get current back stack entry
         val backStackEntry by navController.currentBackStackEntryAsState()
-        // Get the name of the current screen
-        val currentScreen = Screen.valueOf(
-            backStackEntry?.destination?.route ?: Screen.Main.name
-        )
+        val currentTitle = when {
+            backStackEntry?.destination?.hasRoute<Route.FeedList>() == true -> Route.FeedList.title
+            else -> Route.Main.title
+        }
         val snackbarHostState = remember { SnackbarHostState() }
 
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 RssFeedAppBar(
-                    currentScreen = currentScreen,
+                    title = currentTitle,
                     canNavigateBack = navController.previousBackStackEntry != null,
                     navigateUp = { navController.navigateUp() }
                 )
@@ -66,20 +64,20 @@ fun RssReaderApp(navController: NavHostController = rememberNavController()) {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Screen.Main.name,
+                startDestination = Route.Main,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                composable(route = Screen.Main.name) {
+                composable<Route.Main> {
                     MainScreen(
-                        onEditClick = { navController.navigate(Screen.FeedList.name) },
+                        onEditClick = { navController.navigate(Route.FeedList) },
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp)
                     )
                 }
-                composable(route = Screen.FeedList.name) {
+                composable<Route.FeedList> {
                     FeedListScreen()
                 }
             }
