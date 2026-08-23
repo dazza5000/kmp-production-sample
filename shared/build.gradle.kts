@@ -50,6 +50,8 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.navigation.compose)
             implementation(libs.material.icons.core)
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.7.0")
+            implementation(libs.koin.compose)
             //Network
             implementation(libs.ktor.core)
             implementation(libs.ktor.logging)
