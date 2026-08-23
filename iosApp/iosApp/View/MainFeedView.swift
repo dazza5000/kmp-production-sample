@@ -31,22 +31,22 @@ struct MainFeedView: ConnectedView {
         }
     }
     
-    func map(state: FeedState, dispatch: @escaping DispatchFunction) -> Props {
+    func map(state: FeedUiState, store: ObservableFeedStore) -> Props {
         let selectedFeedOption: FeedPickerOption
         if let selectedFeed = state.selectedFeed {
             selectedFeedOption = .feed(selectedFeed)
         } else {
             selectedFeedOption = .all
         }
-        return Props(loading: state.progress,
-              items: state.mainFeedPosts(),
+        return Props(loading: state.isLoading,
+              items: state.mainFeedPosts,
               feedOptions: [.all] + state.feeds.map { FeedPickerOption.feed($0)},
               selectedFeedOption: selectedFeedOption,
               onReloadFeed: { reload in
-                dispatch(FeedAction.Refresh(forceLoad: reload))
+                store.refresh(forceLoad: reload)
               },
               onSelectFeed: { feed in
-                dispatch(FeedAction.SelectFeed(feed: feed))
+                store.selectFeed(feed: feed)
               })
     }
     

@@ -19,7 +19,7 @@ struct RSSApp: App {
         KoinHelperKt.doInitKoin()
         let helper = KoinHelper()
         rss = helper.rssReader
-        store = ObservableFeedStore(store: helper.feedStore)
+        store = ObservableFeedStore(viewModel: helper.feedViewModel)
     }
   
     var body: some Scene {
@@ -30,47 +30,50 @@ struct RSSApp: App {
 }
 
 class ObservableFeedStore: ObservableObject {
-    @Published public var state: FeedState =  FeedState(progress: false, feeds: [], selectedFeed: nil)
-    @Published public var sideEffect: FeedSideEffect?
+    @Published public var state: FeedUiState = FeedUiState(isLoading: false, feeds: [], selectedFeed: nil)
     
-    let store: FeedStore
-    
-    var stateWatcher : Closeable?
-    var sideEffectWatcher : Closeable?
+    let viewModel: FeedViewModel
+    var stateWatcher: Closeable?
 
-    init(store: FeedStore) {
-        self.store = store
-        stateWatcher = self.store.watchState().watch { [weak self] state in
+    init(viewModel: FeedViewModel) {
+        self.viewModel = viewModel
+        stateWatcher = IosViewModelUtilsKt.watchState(self.viewModel).watch { [weak self] state in
             self?.state = state
-        }
-        sideEffectWatcher = self.store.watchSideEffect().watch { [weak self] state in
-            self?.sideEffect = state
         }
     }
     
-    public func dispatch(_ action: FeedAction) {
-        store.dispatch(action: action)
+    public func refresh(forceLoad: Bool = false) {
+        viewModel.refresh(forceLoad: forceLoad)
+    }
+
+    public func addFeed(url: String) {
+        viewModel.addFeed(url: url)
+    }
+
+    public func deleteFeed(url: String) {
+        viewModel.deleteFeed(url: url)
+    }
+
+    public func selectFeed(feed: RssFeed?) {
+        viewModel.selectFeed(feed: feed)
     }
     
     deinit {
         stateWatcher?.close()
-        sideEffectWatcher?.close()
     }
 }
-
-public typealias DispatchFunction = (FeedAction) -> ()
 
 public protocol ConnectedView: View {
     associatedtype Props
     associatedtype V: View
     
-    func map(state: FeedState, dispatch: @escaping DispatchFunction) -> Props
+    func map(state: FeedUiState, store: ObservableFeedStore) -> Props
     func body(props: Props) -> V
 }
 
 public extension ConnectedView {
-    func render(state: FeedState, dispatch: @escaping DispatchFunction) -> V {
-        let props = map(state: state, dispatch: dispatch)
+    func render(state: FeedUiState, store: ObservableFeedStore) -> V {
+        let props = map(state: state, store: store)
         return body(props: props)
     }
     
@@ -81,10 +84,9 @@ public extension ConnectedView {
 
 public struct StoreConnector<V: View>: View {
     @EnvironmentObject var store: ObservableFeedStore
-    let content: (FeedState, @escaping DispatchFunction) -> V
+    let content: (FeedUiState, ObservableFeedStore) -> V
     
     public var body: V {
-        return content(store.state, store.dispatch)
+        return content(store.state, store)
     }
 }
-

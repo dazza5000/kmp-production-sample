@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -47,7 +48,9 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
             implementation(libs.androidx.lifecycle.runtime.compose)
+            api(libs.androidx.lifecycle.viewmodel)
             implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
             implementation(libs.navigation.compose)
             implementation(libs.material.icons.core)
             //Network
@@ -70,6 +73,9 @@ kotlin {
             //XML
             implementation(libs.xml.serialization)
             implementation(libs.xml.serialization.core)
+            //Room
+            api(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
@@ -80,7 +86,17 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.ktor.client.okhttp)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+        }
     }
+}
+
+
+
+room3 {
+    schemaDirectory("$projectDir/schemas")
 }
 
 compose.resources {
