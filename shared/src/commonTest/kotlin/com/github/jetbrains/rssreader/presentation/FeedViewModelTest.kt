@@ -3,17 +3,12 @@ package com.github.jetbrains.rssreader.presentation
 import com.github.jetbrains.rssreader.Settings
 import com.github.jetbrains.rssreader.core.RssReader
 import com.github.jetbrains.rssreader.datasource.network.FeedLoader
+import com.github.jetbrains.rssreader.datasource.storage.FakeRssDao
 import com.github.jetbrains.rssreader.datasource.storage.FeedStorage
-import com.github.jetbrains.rssreader.datasource.storage.RssDao
-import com.github.jetbrains.rssreader.datasource.storage.entity.FeedEntity
-import com.github.jetbrains.rssreader.datasource.storage.entity.FeedWithItems
-import com.github.jetbrains.rssreader.datasource.storage.entity.ItemEntity
 import com.github.jetbrains.rssreader.domain.Channel
 import com.github.jetbrains.rssreader.domain.RssFeed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -22,45 +17,6 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-
-private class FakeRssDao : RssDao {
-    private val feedsMap = mutableMapOf<String, FeedEntity>()
-    private val itemsMap = mutableMapOf<String, MutableList<ItemEntity>>()
-    private val flow = MutableStateFlow<List<FeedWithItems>>(emptyList())
-
-    private fun emit() {
-        val list = feedsMap.values.map { feed ->
-            FeedWithItems(feed, itemsMap[feed.url] ?: emptyList())
-        }
-        flow.value = list
-    }
-
-    override fun observeAllFeeds(): Flow<List<FeedWithItems>> = flow
-
-    override suspend fun getAllFeeds(): List<FeedWithItems> {
-        return feedsMap.values.map { feed ->
-            FeedWithItems(feed, itemsMap[feed.url] ?: emptyList())
-        }
-    }
-
-    override suspend fun insertFeed(feed: FeedEntity) {
-        feedsMap[feed.url] = feed
-        emit()
-    }
-
-    override suspend fun insertItems(items: List<ItemEntity>) {
-        items.forEach { item ->
-            itemsMap.getOrPut(item.feedUrl) { mutableListOf() }.add(item)
-        }
-        emit()
-    }
-
-    override suspend fun deleteFeed(url: String) {
-        feedsMap.remove(url)
-        itemsMap.remove(url)
-        emit()
-    }
-}
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FeedViewModelTest {
