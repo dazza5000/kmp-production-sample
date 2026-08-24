@@ -9,11 +9,33 @@
 import Foundation
 import SwiftUI
 import RssReader
+import UIKit
+
+#if DEBUG
+struct DebugUiFlags {
+    static let useComposeUIKey = "useComposeUI"
+    static var useComposeUI: Bool {
+        UserDefaults.standard.bool(forKey: useComposeUIKey)
+    }
+}
+
+struct ComposeRootView: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIViewController {
+        MainViewControllerKt.MainViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+#endif
 
 @main
 struct RSSApp: App {
     let rss: RssReader
     let store: ObservableFeedStore
+
+#if DEBUG
+    @AppStorage(DebugUiFlags.useComposeUIKey) private var useComposeUI: Bool = false
+#endif
     
     init() {
         KoinHelperKt.doInitKoin()
@@ -24,7 +46,46 @@ struct RSSApp: App {
   
     var body: some Scene {
         WindowGroup {
+#if DEBUG
+            if useComposeUI {
+                ZStack(alignment: .bottomTrailing) {
+                    ComposeRootView()
+                        .ignoresSafeArea()
+                    Button(action: {
+                        useComposeUI = false
+                    }) {
+                        Text("SwiftUI")
+                            .font(.caption.bold())
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.black.opacity(0.75))
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .shadow(radius: 4)
+                    }
+                    .padding()
+                }
+            } else {
+                ZStack(alignment: .bottomTrailing) {
+                    RootView().environmentObject(store)
+                    Button(action: {
+                        useComposeUI = true
+                    }) {
+                        Text("Use Compose UI")
+                            .font(.caption.bold())
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.black.opacity(0.75))
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .shadow(radius: 4)
+                    }
+                    .padding()
+                }
+            }
+#else
             RootView().environmentObject(store)
+#endif
         }
     }
 }
